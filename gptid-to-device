@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# gptid-to-device <gpt>
+
+if [ $# -ne 1 -o "$1" = "-h" -o "$1" = "--help" ] ; then
+  echo "Usage: $0 <gpt>" >&2
+  echo "Examples: $0 e5d96c20-2f6d-11e5-9aed-003048806658" >&2
+  echo "          $0 gptid/e5d96c20-2f6d-11e5-9aed-003048806658" >&2
+  exit 1
+fi
+
+# remove /dev/gptid/ or gptid/ prefixes
+gptid="${1#/dev/}"
+gptid=${gptid#gptid/}
+
+gpart list | awk '
+    /[0-9][0-9]*\. Name\: / { part=$3 }; 
+    /rawuuid\: '"$gptid"'/ { print part }
+'
